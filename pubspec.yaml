@@ -1,0 +1,40 @@
+name: red_slice_project
+description: "A new Flutter project."
+publish_to: 'none'
+version: 1.0.0+1
+environment:
+  sdk: ^3.5.3
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  firebase_core: ^3.8.1
+  firebase_auth: ^5.3.4
+  http: ^1.2.2
+  shared_preferences: ^2.3.4
+  flutter_html: ^3.0.0-beta.2
+  intl: ^0.20.1
+  marquee: ^2.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_svg: ^2.0.0
+  google_fonts: ^5.0.0
+  flutter_lints: ^4.0.0
+flutter:
+  assets:
+    - assets/resources/image.png
+    - assets/resources/background.png
+    - assets/resources/helper.png
+    - assets/resources/creativity.png
+    - assets/resources/news.png
+    - assets/resources/creativity.png
+    - assets/resources/code.png
+    - assets/resources/cat.png
+    - assets/resources/dota.png
+    - assets/resources/wot.png
+    - assets/resources/gopnik.png
+    - assets/resources/babka.png
+  uses-material-design: true

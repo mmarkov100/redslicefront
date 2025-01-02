@@ -1,0 +1,75 @@
+
+
+# Firebase-specific
+firebase_options.dart
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter-versions
+.pub-cache/
+.pub/
+/build/
+/node_modules/
+.cyclonedx/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Generated files by Flutter
+.flutter
+.macos/
+*.lock
+*.pid
+*.log
+
+# Android-specific
+/local.properties
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/android/key.properties
+**/android/app/build/
+.idea/libraries
+.gradle/
+*.iml
+
+# iOS-specific
+**/ios/Pods/
+**/ios/Runner.xcworkspace/
+**/ios/Flutter/Flutter.framework/
+**/ios/Flutter/App.framework/
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/.symlinks/
+/ios/Flutter/GeneratedPluginRegistrant.*
+xcuserdata/
+
+# macOS-specific
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Visual Studio Code-related
+.vscode/
+*.code-workspace
+*.launch.json
+
+# Miscellaneous
+*.swp
+*.class
+*.pyc
+*.pyo
+*.pdb
+*.tmp
+*.bak
+*.orig
+*.lock.json
+*.gz
+*.sql
