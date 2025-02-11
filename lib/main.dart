@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'RedSlice',
-      home: isLoggedIn ? const HomePage() : const LoginPage(),
+      home: isLoggedIn ? const LoginPage() : const LoginPage(),
     );
   }
 }
