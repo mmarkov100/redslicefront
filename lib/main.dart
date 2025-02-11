@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:red_slice_project/features/auth/widgets/register_page.dart';
 import 'package:red_slice_project/features/chat/widgets/home_page.dart';
 import 'package:red_slice_project/features/auth/widgets/login_page.dart';
 import 'package:red_slice_project/features/auth/service/auth_service.dart';
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'RedSlice',
-      home: isLoggedIn ? const LoginPage() : const LoginPage(),
+      home: isLoggedIn ? const HomePage() : const HomePage(),
     );
   }
 }

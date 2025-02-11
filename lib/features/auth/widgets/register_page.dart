@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:red_slice_project/features/auth/service/auth_service.dart';
 import 'package:red_slice_project/features/user/service/user_service.dart';
-import 'background_image.dart';
 import 'login_page.dart';
 import '../../chat/widgets/home_page.dart';
 
@@ -39,38 +38,32 @@ class RegisterPageState extends State<RegisterPage> {
         password: _passwordController.text.trim(),
       );
 
-      // Обновление имени пользователя
       await userCredential.user
           ?.updateDisplayName(_usernameController.text.trim());
 
-      // Получение токена Firebase
       String? token = await userCredential.user?.getIdToken();
-
-      // Сохранение токена
       await AuthService.saveToken(token!);
 
-      // Получение токена из AuthService
       String? jwtFirebase = await AuthService.getToken();
       if (jwtFirebase == null) {
         throw Exception('Токен Firebase не найден в SharedPreferences');
       }
 
-      // Регистрация пользователя в базе данных
       await userService.registerUser(jwtFirebase, _emailController.text.trim());
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content:
-                Text('Успешная регистрация: ${userCredential.user?.email}')),
+          content: Text('Успешная регистрация: ${userCredential.user?.email}'),
+          backgroundColor: Colors.green,
+        ),
       );
 
-      // Перенаправление на главную страницу
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomePage()),
       );
     } catch (e) {
-      String errorMessage;
+      String errorMessage = 'Ошибка регистрации';
       if (e is FirebaseAuthException) {
         switch (e.code) {
           case 'email-already-in-use':
@@ -85,12 +78,10 @@ class RegisterPageState extends State<RegisterPage> {
           default:
             errorMessage = 'Ошибка: ${e.message}';
         }
-      } else {
-        errorMessage = 'Неизвестная ошибка: $e';
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
       );
     } finally {
       setState(() {
@@ -113,130 +104,166 @@ class RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenBase(
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: const BoxDecoration(
-                color: Colors.green,
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Image.asset(
-                  'assets/resources/image.png',
-                  height: 80,
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: 450,
-              child: TextFormField(
-                controller: _usernameController,
-                validator: _validateUsername,
-                maxLength: 10,
-                // Максимальная длина имени пользователя
-                textInputAction: TextInputAction.next,
-                // Переход к следующему полю
-                decoration: InputDecoration(
-                  labelText: 'Имя пользователя',
-                  fillColor: Colors.white,
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.black, Color(0xFF2E2E2E)], // Градиентный фон
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              width: 400,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                    offset: const Offset(0, 5),
                   ),
-                ),
+                ],
               ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: 450,
-              child: TextFormField(
-                controller: _emailController,
-                textInputAction: TextInputAction.next,
-                // Переход к следующему полю
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  fillColor: Colors.white,
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: 450,
-              child: TextFormField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                validator: _validatePassword,
-                textInputAction: TextInputAction.done,
-                // Выполнение действия
-                onFieldSubmitted: (value) => _register(),
-                // Нажатие Enter
-                decoration: InputDecoration(
-                  labelText: 'Пароль',
-                  fillColor: Colors.white,
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Название "Promts"
+                  const Text(
+                    "Promts",
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF757575), // Ярко-серый цвет
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
                   ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            _isLoading
-                ? const CircularProgressIndicator(color: Colors.white)
-                : ElevatedButton(
-                    onPressed: _register,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green[700],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                  const SizedBox(height: 20),
+
+                  // Поле ввода имени пользователя
+                  _googleTextField(
+                    controller: _usernameController,
+                    label: 'Имя пользователя',
+                    icon: Icons.person,
+                    validator: _validateUsername,
+                    textInputAction: TextInputAction.next,
+                  ),
+                  _divider(),
+
+                  // Поле ввода Email
+                  _googleTextField(
+                    controller: _emailController,
+                    label: 'Email',
+                    icon: Icons.email,
+                    textInputAction: TextInputAction.next,
+                  ),
+                  _divider(),
+
+                  // Поле ввода Пароля
+                  _googleTextField(
+                    controller: _passwordController,
+                    label: 'Пароль',
+                    icon: Icons.lock,
+                    obscureText: _obscurePassword,
+                    validator: _validatePassword,
+                    textInputAction: TextInputAction.done,
+                    onFieldSubmitted: (_) => _register(),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey[700],
                       ),
-                    ),
-                    child: const Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                      child: Text('Зарегистрироваться',
-                          style: TextStyle(fontSize: 16, color: Colors.white)),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
                     ),
                   ),
-            const SizedBox(height: 10),
-            TextButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
-                );
-              },
-              child: const Text(
-                'Авторизоваться',
-                style: TextStyle(color: Colors.white, fontSize: 16),
+                  const SizedBox(height: 20),
+
+                  // Кнопка "Зарегистрироваться"
+                  _isLoading
+                      ? const CircularProgressIndicator(color: Colors.black)
+                      : ElevatedButton(
+                          onPressed: _register,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey[800],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                          ),
+                          child: const Text(
+                            'Зарегистрироваться',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                        ),
+                  const SizedBox(height: 10),
+
+                  // Кнопка "Авторизоваться"
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoginPage()),
+                      );
+                    },
+                    child: const Text(
+                      'Авторизоваться',
+                      style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
+    );
+  }
+
+  /// **Google Material 3 `TextField`**
+  Widget _googleTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    TextInputAction? textInputAction,
+    bool obscureText = false,
+    String? Function(String?)? validator,
+    Function(String)? onFieldSubmitted,
+    Widget? suffixIcon,
+  }) {
+    return TextFormField(
+      controller: controller,
+      validator: validator,
+      obscureText: obscureText,
+      textInputAction: textInputAction,
+      onFieldSubmitted: onFieldSubmitted,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: Colors.grey[700]),
+        suffixIcon: suffixIcon,
+        filled: true,
+        fillColor: Colors.transparent,
+        border: InputBorder.none,
+        labelStyle: const TextStyle(color: Colors.black),
+      ),
+    );
+  }
+
+  /// Разделитель между полями
+  Widget _divider() {
+    return Container(
+      height: 1,
+      color: Colors.grey[400],
+      margin: const EdgeInsets.symmetric(vertical: 8),
     );
   }
 }
