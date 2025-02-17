@@ -23,14 +23,14 @@ class ChatPage extends StatefulWidget {
   ChatPageState createState() => ChatPageState();
 }
 
-
 class ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   final List<Message> _messages = [];
   final MessageService _messageService = MessageService();
   bool _isMessageEmpty = true;
-  final ScrollController _scrollController = ScrollController(); // Добавляем ScrollController
+  final ScrollController _scrollController =
+      ScrollController(); // Добавляем ScrollController
   ChatService chatService = ChatService();
   bool _isGenerating = false; // Флаг для отслеживания состояния генерации
   bool _isLoading = false; // Флаг для первоначальной загрузки сообщений
@@ -70,13 +70,15 @@ class ChatPageState extends State<ChatPage> {
       final branchId = widget.chat.selectedBranchId;
       if (branchId == null) throw Exception('Branch ID отсутствует.');
 
-      final messages = await _messageService.getBranchMessages(jwtToken, branchId);
+      final messages =
+          await _messageService.getBranchMessages(jwtToken, branchId);
 
       messages.sort((b, a) => b.id.compareTo(a.id));
 
       setState(() {
         final existingIds = _messages.map((msg) => msg.id).toSet();
-        _messages.addAll(messages.where((msg) => !existingIds.contains(msg.id)));
+        _messages
+            .addAll(messages.where((msg) => !existingIds.contains(msg.id)));
       });
       _scrollToBottom();
     } catch (e) {
@@ -102,7 +104,6 @@ class ChatPageState extends State<ChatPage> {
     final text = _messageController.text.trim();
 
     if (text.isNotEmpty && !_isGenerating) {
-
       setState(() {
         _isGenerating = true; // Начинаем генерацию
       });
@@ -126,6 +127,7 @@ class ChatPageState extends State<ChatPage> {
         messageHistory.add({'role': 'user', 'text': text});
 
         // Генерация и сохранение новых сообщений
+        // TODO Сделать реализацию GenApi
         final newMessages = await _messageService.generateAndSaveMessages(
           jwtToken,
           branchId,
@@ -137,7 +139,8 @@ class ChatPageState extends State<ChatPage> {
 
         setState(() {
           final existingIds = _messages.map((msg) => msg.id).toSet();
-          _messages.addAll(newMessages.where((msg) => !existingIds.contains(msg.id)));
+          _messages.addAll(
+              newMessages.where((msg) => !existingIds.contains(msg.id)));
         });
 
         _scrollToBottom();
@@ -147,8 +150,7 @@ class ChatPageState extends State<ChatPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Ошибка отправки сообщения: $e')),
         );
-      }
-      finally {
+      } finally {
         setState(() {
           _isGenerating = false; // Завершаем генерацию
           _messageController.clear();
@@ -158,15 +160,14 @@ class ChatPageState extends State<ChatPage> {
     }
   }
 
-
-//TODO Виджет показа настроек чата
+//Виджет показа настроек чата
   void _showChatSettings() {
     final TextEditingController nameController =
-    TextEditingController(text: widget.chat.chatName);
+        TextEditingController(text: widget.chat.chatName);
     final TextEditingController temperatureController =
-    TextEditingController(text: widget.chat.temperature.toString());
+        TextEditingController(text: widget.chat.temperature.toString());
     final TextEditingController contextController =
-    TextEditingController(text: widget.chat.context);
+        TextEditingController(text: widget.chat.context);
 
     showDialog(
       context: context,
@@ -209,7 +210,8 @@ class ChatPageState extends State<ChatPage> {
                     const SizedBox(height: 5),
                     TextField(
                       controller: temperatureController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
                       decoration: InputDecoration(
                         hintText: 'Введите значение от 0.0 до 1.0',
                         hintStyle: const TextStyle(color: Colors.white70),
@@ -235,21 +237,36 @@ class ChatPageState extends State<ChatPage> {
                         DropdownMenuItem(
                           value: 'yandexgpt-32k/latest',
                           child: Text(
-                            'yandexgpt-32k/latest',
+                            'YangexGPT',
                             style: TextStyle(color: Colors.white),
                           ),
                         ),
                         DropdownMenuItem(
                           value: 'llama/latest',
                           child: Text(
-                            'llama/latest',
+                            'Llama (иноагент йоу)',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 'chatgpt4o-mini',
+                          child: Text(
+                            'ChatGPT 4o mini',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                                                DropdownMenuItem(
+                          value: 'deepseek-v3',
+                          child: Text(
+                            'DeepSeek V3',
                             style: TextStyle(color: Colors.white),
                           ),
                         ),
                       ],
                       onChanged: (value) {
                         setDialogState(() {
-                          selectedModel = value ?? 'yandexgpt-32k/latest'; // Обновляем выбранную модель
+                          selectedModel = value ??
+                              'yandexgpt-32k/latest'; // Обновляем выбранную модель
                         });
                       },
                     ),
@@ -278,78 +295,86 @@ class ChatPageState extends State<ChatPage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Отмена', style: TextStyle(color: Colors.white)),
+                  child: const Text('Отмена',
+                      style: TextStyle(color: Colors.white)),
                 ),
                 TextButton(
                   onPressed: isSavingChat
                       ? null
                       : () async {
-                    final updatedName = nameController.text.trim();
-                    final updatedTemperature =
-                    double.tryParse(temperatureController.text.trim());
-                    final updatedContext = contextController.text.trim();
+                          final updatedName = nameController.text.trim();
+                          final updatedTemperature = double.tryParse(
+                              temperatureController.text.trim());
+                          final updatedContext = contextController.text.trim();
 
-                    if (updatedName.isEmpty ||
-                        updatedTemperature == null ||
-                        updatedTemperature < 0 ||
-                        updatedTemperature > 1) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Проверьте корректность данных'),
-                        ),
-                      );
-                      return;
-                    }
+                          if (updatedName.isEmpty ||
+                              updatedTemperature == null ||
+                              updatedTemperature < 0 ||
+                              updatedTemperature > 1) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Проверьте корректность данных'),
+                              ),
+                            );
+                            return;
+                          }
 
-                    setDialogState(() {
-                      isSavingChat = true; // Показываем индикатор загрузки
-                    });
+                          setDialogState(() {
+                            isSavingChat =
+                                true; // Показываем индикатор загрузки
+                          });
 
-                    try {
-                      // Отправляем запрос на изменение настроек чата
-                      final updatedChat = await chatService.updateChat(
-                        await AuthService.getToken() as String, // JWT токен
-                        widget.chat.id,
-                        updatedName,
-                        updatedTemperature,
-                        updatedContext,
-                        selectedModel,
-                        widget.chat.selectedBranchId,
-                      );
+                          try {
+                            // Отправляем запрос на изменение настроек чата
+                            final updatedChat = await chatService.updateChat(
+                              await AuthService.getToken()
+                                  as String, // JWT токен
+                              widget.chat.id,
+                              updatedName,
+                              updatedTemperature,
+                              updatedContext,
+                              selectedModel,
+                              widget.chat.selectedBranchId,
+                            );
 
-                      // Обновляем состояние чата
-                      setState(() {
-                        widget.chat.chatName = updatedChat.chatName;
-                        widget.chat.temperature = updatedChat.temperature;
-                        widget.chat.context = updatedChat.context;
-                        widget.chat.modelUri = updatedChat.modelUri;
-                        widget.chat.dateEdit = updatedChat.dateEdit;
-                      });
+                            // Обновляем состояние чата
+                            setState(() {
+                              widget.chat.chatName = updatedChat.chatName;
+                              widget.chat.temperature = updatedChat.temperature;
+                              widget.chat.context = updatedChat.context;
+                              widget.chat.modelUri = updatedChat.modelUri;
+                              widget.chat.dateEdit = updatedChat.dateEdit;
+                            });
 
-                      Navigator.of(context).pop(); // Закрываем диалог настроек
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Ошибка обновления настроек: $e')),
-                      );
-                    } finally {
-                      setDialogState(() {
-                        isSavingChat = false; // Скрываем индикатор загрузки
-                      });
-                    }
-                  },
+                            Navigator.of(context)
+                                .pop(); // Закрываем диалог настроек
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content:
+                                      Text('Ошибка обновления настроек: $e')),
+                            );
+                          } finally {
+                            setDialogState(() {
+                              isSavingChat =
+                                  false; // Скрываем индикатор загрузки
+                            });
+                          }
+                        },
                   child: isSavingChat
                       ? const CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2.0,
-                  )
+                          color: Colors.white,
+                          strokeWidth: 2.0,
+                        )
                       : const Text(
-                    'Сохранить',
-                    style: TextStyle(color: Colors.white),
-                  ),
+                          'Сохранить',
+                          style: TextStyle(color: Colors.white),
+                        ),
                 ),
                 TextButton(
                   onPressed: _confirmDeleteChat,
-                  child: const Text('Удалить чат', style: TextStyle(color: Colors.red)),
+                  child: const Text('Удалить чат',
+                      style: TextStyle(color: Colors.red)),
                 ),
               ],
             );
@@ -377,14 +402,17 @@ class ChatPageState extends State<ChatPage> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(), // Отменяем подтверждение и выходим
-              child: const Text('Отмена', style: TextStyle(color: Colors.white)),
+              onPressed: () => Navigator.of(context)
+                  .pop(), // Отменяем подтверждение и выходим
+              child:
+                  const Text('Отмена', style: TextStyle(color: Colors.white)),
             ),
             TextButton(
               onPressed: () async {
                 try {
                   final jwtToken = await AuthService.getToken();
-                  if (jwtToken == null) throw Exception('JWT-токен отсутствует.');
+                  if (jwtToken == null)
+                    throw Exception('JWT-токен отсутствует.');
 
                   await chatService.deleteChat(jwtToken, widget.chat.id);
 
@@ -456,91 +484,109 @@ class ChatPageState extends State<ChatPage> {
                           color: Colors.white,
                         ),
                       )
-                    else if (_messages.isEmpty) const Center(
-                      child: Text(
-                        'Список сообщений пуст. Нажмите сообщение в чат!',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                    )
+                    else if (_messages.isEmpty)
+                      const Center(
+                        child: Text(
+                          'Список сообщений пуст. Нажмите сообщение в чат!',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      )
                     else
                       ListView.builder(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.all(10),
-                      itemCount: _messages.length,
-                      itemBuilder: (context, index) {
-                        final message = _messages[index];
-                        final isUserMessage = message.role == 'user';
+                        controller: _scrollController,
+                        padding: const EdgeInsets.all(10),
+                        itemCount: _messages.length,
+                        itemBuilder: (context, index) {
+                          final message = _messages[index];
+                          final isUserMessage = message.role == 'user';
 
-                        // Форматируем дату
-                        final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
-                        final formattedDate = dateFormat.format(message.dateCreate);
+                          // Форматируем дату
+                          final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
+                          final formattedDate =
+                              dateFormat.format(message.dateCreate);
 
-                        return Align(
-                          alignment: isUserMessage ? Alignment.centerRight : Alignment.centerLeft,
-                          child: Column(
-                            crossAxisAlignment: isUserMessage ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                            children: [
-                              // Текст сообщения
-                              ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                  maxWidth: 500,
-                                ),
-                                child: Container(
-                                  margin: const EdgeInsets.symmetric(vertical: 5),
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: isUserMessage ? Colors.blue : Colors.grey[700],
-                                    borderRadius: BorderRadius.circular(10),
+                          return Align(
+                            alignment: isUserMessage
+                                ? Alignment.centerRight
+                                : Alignment.centerLeft,
+                            child: Column(
+                              crossAxisAlignment: isUserMessage
+                                  ? CrossAxisAlignment.end
+                                  : CrossAxisAlignment.start,
+                              children: [
+                                // Текст сообщения
+                                ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 500,
                                   ),
-                                  child: Html(
-                                    data: message.text, // HTML-код сообщения
-                                    style: {
-                                      "body": Style(
-                                        color: Colors.white,
-                                        fontSize: FontSize(14),
-                                        margin: Margins.zero,
-                                      ),
-                                    },
-                                  ),
-                                ),
-                              ),
-
-
-                              Row(
-                                mainAxisSize: MainAxisSize.min, // Подгоняет по размеру контента
-                                children: [
-                                  // Дата создания
-                                  Text(
-                                    formattedDate,
-                                    style: const TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 12,
+                                  child: Container(
+                                    margin:
+                                        const EdgeInsets.symmetric(vertical: 5),
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: isUserMessage
+                                          ? Colors.blue
+                                          : Colors.grey[700],
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Html(
+                                      data: message.text, // HTML-код сообщения
+                                      style: {
+                                        "body": Style(
+                                          color: Colors.white,
+                                          fontSize: FontSize(14),
+                                          margin: Margins.zero,
+                                        ),
+                                      },
                                     ),
                                   ),
-                                  const SizedBox(width: 10), // Отступ между датой и кнопкой
-                                  // Кнопка копирования
-                                  IconButton(
-                                    icon: const Icon(Icons.copy, color: Colors.white70, size: 16),
-                                    onPressed: () {
-                                      Clipboard.setData(ClipboardData(text: message.text));
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Сообщение скопировано!'),
-                                          duration: Duration(seconds: 2),
-                                        ),
-                                      );
-                                    },
-                                    tooltip: 'Копировать сообщение', // Подсказка при наведении
-                                    constraints: const BoxConstraints(), // Уменьшает размер кнопки
-                                    padding: EdgeInsets.zero, // Убирает отступы внутри кнопки
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
+                                ),
+
+                                Row(
+                                  mainAxisSize: MainAxisSize
+                                      .min, // Подгоняет по размеру контента
+                                  children: [
+                                    // Дата создания
+                                    Text(
+                                      formattedDate,
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                        width:
+                                            10), // Отступ между датой и кнопкой
+                                    // Кнопка копирования
+                                    IconButton(
+                                      icon: const Icon(Icons.copy,
+                                          color: Colors.white70, size: 16),
+                                      onPressed: () {
+                                        Clipboard.setData(
+                                            ClipboardData(text: message.text));
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content:
+                                                Text('Сообщение скопировано!'),
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+                                      },
+                                      tooltip:
+                                          'Копировать сообщение', // Подсказка при наведении
+                                      constraints:
+                                          const BoxConstraints(), // Уменьшает размер кнопки
+                                      padding: EdgeInsets
+                                          .zero, // Убирает отступы внутри кнопки
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                   ],
                 ),
               ),
@@ -573,12 +619,12 @@ class ChatPageState extends State<ChatPage> {
                       iconSize: 35,
                       icon: (_isGenerating)
                           ? const CircularProgressIndicator(
-                        color: Colors.white,
-                      )
+                              color: Colors.white,
+                            )
                           : Icon(Icons.send,
-                          color: (_isMessageEmpty || _isGenerating)
-                              ? Colors.grey
-                              : Colors.white),
+                              color: (_isMessageEmpty || _isGenerating)
+                                  ? Colors.grey
+                                  : Colors.white),
                       onPressed: (_isMessageEmpty || _isGenerating)
                           ? null
                           : _sendMessage,

@@ -12,24 +12,33 @@ class MessageService {
 
   // Генерация и сохранение сообщения
   Future<List<Message>> generateAndSaveMessages(
-      String jwtFirebase,
-      int branchId,
-      String modelUri,
-      double temperature,
-      String context,
-      List<Map<String, String>> messages,
-      ) async {
+    String jwtFirebase,
+    int branchId,
+    String modelUri,
+    double temperature,
+    String context,
+    List<Map<String, String>> messages,
+  ) async {
     baseUrl = userService.baseUrl;
 
+    // Исправленное условие
+    if (modelUri == "chatgpt4o-mini" || modelUri == "deepseek-v3") {
+      baseUrl = '$baseUrl/messages/genapi';
+    } else {
+      baseUrl = '$baseUrl/messages';
+    }
+
+    print(modelUri + " " + baseUrl);
+
     final response = await http.post(
-      Uri.parse('$baseUrl/messages'),
+      Uri.parse(baseUrl),
       headers: {
         'Content-Type': 'application/json',
         'JWTFirebase': jwtFirebase,
       },
       body: json.encode({
         'branchId': branchId,
-        'modelUri': modelUri,
+        'model': modelUri,
         'temperature': temperature,
         'context': context,
         'messages': messages,
@@ -41,12 +50,14 @@ class MessageService {
       return data.map((message) => Message.fromJson(message)).toList();
     } else {
       final error = json.decode(response.body);
-      throw Exception(error['message'] ?? 'Failed to generate and save messages');
+      throw Exception(
+          error['message'] ?? 'Failed to generate and save messages');
     }
   }
 
   // Получение всех сообщений ветки
-  Future<List<Message>> getBranchMessages(String jwtFirebase, int branchId) async {
+  Future<List<Message>> getBranchMessages(
+      String jwtFirebase, int branchId) async {
     baseUrl = userService.baseUrl;
 
     final response = await http.post(

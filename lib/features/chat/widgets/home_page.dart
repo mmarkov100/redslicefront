@@ -408,9 +408,7 @@ class HomePageState extends State<HomePage> {
           color: Colors.white,
         ),
       );
-    }
-
-    else if (_chats.isEmpty && !isLoading) {
+    } else if (_chats.isEmpty && !isLoading) {
       return const Center(
         child: Text(
           'Список чатов пуст.',
@@ -439,9 +437,7 @@ class HomePageState extends State<HomePage> {
               fetchChats();
             });
           },
-          onLongPress: () {
-
-          },
+          onLongPress: () {},
           child: Container(
             margin: const EdgeInsets.only(bottom: 10),
             padding: const EdgeInsets.all(10),
@@ -483,7 +479,8 @@ class HomePageState extends State<HomePage> {
 
   void _promptChatDetails() {
     final TextEditingController nameController = TextEditingController();
-    final TextEditingController temperatureController = TextEditingController(text: '0.7');
+    final TextEditingController temperatureController =
+        TextEditingController(text: '0.7');
     final TextEditingController descriptionController = TextEditingController();
     String selectedModel = 'yandexgpt-32k/latest';
 
@@ -556,14 +553,28 @@ class HomePageState extends State<HomePage> {
                         DropdownMenuItem(
                           value: 'yandexgpt-32k/latest',
                           child: Text(
-                            'yandexgpt-32k/latest',
+                            'YangexGPT',
                             style: TextStyle(color: Colors.white),
                           ),
                         ),
                         DropdownMenuItem(
                           value: 'llama/latest',
                           child: Text(
-                            'llama/latest',
+                            'Llama (иноагент йоу)',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 'chatgpt4o-mini',
+                          child: Text(
+                            'ChatGPT 4o mini',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 'deepseek-v3',
+                          child: Text(
+                            'DeepSeek V3',
                             style: TextStyle(color: Colors.white),
                           ),
                         ),
